@@ -498,7 +498,7 @@ class ModbusSerialClient(BaseModbusClient):
     def _in_waiting(self):
         in_waiting = ("in_waiting" if hasattr(
             self.socket, "in_waiting") else "inWaiting")
-
+        # print(in_waiting)
         if in_waiting == "in_waiting":
             waitingbytes = getattr(self.socket, in_waiting)
         else:
@@ -543,15 +543,50 @@ class ModbusSerialClient(BaseModbusClient):
         else:
             condition = partial(lambda dummy1, dummy2: True, dummy2=None)
         start = time.time()
+
+        # ctr=0
         while condition(start):
             avaialble = self._in_waiting()
+            # ctr+=1
+            # print(ctr,avaialble,size)
             if (more_data and not avaialble) or (more_data and avaialble == size):
                 break
             if avaialble and avaialble != size:
                 more_data = True
                 size = avaialble
-            time.sleep(0.01)
+            time.sleep(0.001)
         return size
+
+    # added by alex
+    def _wait_for_data_and_read(self):
+        size = 0
+        more_data = False
+        if self.timeout is not None and self.timeout != 0:
+            condition = partial(lambda start, timeout:
+                                (time.time() - start) <= timeout,
+                                timeout=self.timeout)
+        else:
+            condition = partial(lambda dummy1, dummy2: True, dummy2=None)
+        start = time.time()
+
+        dataGet = b''
+        firstRead = True
+        ctr=0
+        while condition(start):
+            # print(len(dataGet),ctr)
+            ctr+=1
+
+            avaialble = self._in_waiting()
+            if(avaialble != 0):
+                dataGet += self.socket.read(avaialble)
+                firstRead = False
+            else:
+                if(firstRead==False):
+                    return dataGet
+            time.sleep(0.002)
+
+        return dataGet
+
 
     def _recv(self, size):
         """ Reads data from the underlying descriptor
@@ -562,8 +597,9 @@ class ModbusSerialClient(BaseModbusClient):
         if not self.socket:
             raise ConnectionException(self.__str__())
         if size is None:
-            size = self._wait_for_data()
-        result = self.socket.read(size)
+            result = self._wait_for_data_and_read()
+        else:
+            result = self.socket.read(size)
         return result
 
     def is_socket_open(self):

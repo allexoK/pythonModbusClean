@@ -3,14 +3,14 @@ from datetime import datetime
 import time
 import psutil, os
 import serial.tools.list_ports
-# import logging
+import logging
 
 # logging.basicConfig()
 # log = logging.getLogger()
 # log.setLevel(logging.DEBUG)
 
-mbClient = None
-mbTcpClient = None
+# mbClient = None
+# mbTcpClient = None
 
 #Creartes Serial modbus client
 def createModbusClient(port, stopBits, bytesize, parity, baudrate):
@@ -200,7 +200,25 @@ def getPorts():
 
 # createModbusTcpClient("10.42.0.18",80)
 # createModbusTcpClient("192.168.0.108",80)
-# createModbusClient("/dev/ttyUSB0",1,8,"E",115200)
+createModbusClient("/dev/ttyACM0",1,8,"E",2000000)
+write32BitUnsignedHoldings(40020,[2000],4)
+time.sleep(0.005)
+writeFloatHoldings(40022,[0.1],4)
+time.sleep(0.005)
+write16BitUnsignedHoldings(40024,[0],4)
+time.sleep(0.005)
+writeFloatHoldings(40025,[0.1],4)
+time.sleep(0.005)
+write16BitUnsignedHoldings(40027,[1],4)
+time.sleep(0.005)
+writeCoils(1,[1],4)
+while(1):
+    # time.sleep(0.010)
+    timeBefore = time.time()
+    result = read16BitUnsignedFifoAndTime(30001,8,4)
+
+    # result = read32BitUnsignedHoldings(40001,1,4)
+    print(time.time()-timeBefore)
 
 # write16BitUnsignedHoldings(40020,[400,1,60,0,0,49440,0,1,1],4)
 # write16BitUnsignedHoldingRegister(40020,400,4)
@@ -214,19 +232,9 @@ def getPorts():
 # writeFloatHoldings(40012,[0.5],4)
 # write32BitUnsignedHoldings(40014,[100000],4)
 # writeFloatHoldings(40016,[0.2],4)
-createModbusTcpClient("192.168.1.12",80)
-while(1):
-#     # pass
-#     # 4 10 9c 40 0 2 4 0 b 0 c 6e 92
-    # print(writeCoils(1,[True,True,True,True],4))
-    d = time.perf_counter()
-    read16BitUnsignedHoldings(40357,1,4)
-    print((time.perf_counter()-d)*1000)
-  
-    # d = time.perf_counter()
-    # read16BitUnsignedHoldings(40001,1,4)
 
-    # readFloatFifoAndTime(30001,1,4)
+# createModbusTcpClient("192.168.0.114",80)
+#     print(result[1])
     # read16BitUnsignedFifoAndTime(30001,4,4)
     # read16BitUnsignedFifoAndTime(30001,4,4)
     # print((time.perf_counter()-d)*1000)
@@ -243,3 +251,27 @@ while(1):
     # print(readFloatFifoAndTime(30027,4,4))
     # time.sleep(0.01)
     # print((time.perf_counter()-d)*1000)
+
+# import matplotlib.pyplot as plt
+# import requests
+# from drawnow import drawnow
+# import numpy as np
+# x=[]
+# y=[]
+# def make_fig():
+#     plt.scatter(x, y,marker=".")  # I think you meant this
+
+# plt.ion()  # enable interactivity
+# fig = plt.figure()  # make a figure
+
+# createModbusTcpClient("192.168.0.114",80)
+# # createModbusTcpClient("192.168.0.103",80)
+# # createModbusTcpClient("192.168.1.11",80)
+# #     result = readFloatFifoAndTime(30001,2,4)
+
+# while(1):
+#     result = readFloatFifoAndTime(30007,1,4)
+#     y = result[0][0]
+#     x = result[0][1]
+#     drawnow(make_fig)
+#     print(readFloatHoldings(40100,10,4))

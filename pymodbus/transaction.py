@@ -148,6 +148,7 @@ class ModbusTransactionManager(object):
                         full=full,
                         broadcast=broadcast
                     )
+                    # print(len(response))
                     if not response and (
                             request.unit_id not in self._no_response_devices):
                         self._no_response_devices.append(request.unit_id)
@@ -224,8 +225,9 @@ class ModbusTransactionManager(object):
                 _logger.debug("Changing transaction state from 'SENDING' "
                               "to 'WAITING FOR REPLY'")
                 self.client.state = ModbusTransactionState.WAITING_FOR_REPLY
+            # print(response_length, full)
             result = self._recv(response_length, full)
-            # print(len(result))
+            # print("resp",len(result))
             if _logger.isEnabledFor(logging.DEBUG):
                     _logger.debug("RECV: " + hexlify_packets(result))
 

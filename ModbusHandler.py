@@ -25,7 +25,7 @@ class modbusHandler:
         self.tcpNumberOfRetries = 20
 
         if(type == "TCP"):
-            self.ModbusClient = ModbusTcpClient(tcpIp,tcpPort,timeout = 0.3)
+            self.ModbusClient = ModbusTcpClient(tcpIp,tcpPort,timeout = 0.5)
         else: 
             if(type == "RTU"):
                 if(len(Port)==0):
